@@ -9,7 +9,6 @@ then
 else
 	touch address_book.txt
 fi
-
 #Function to add new entry in Address Book
 new() {
 	echo "**********Add Person**********"
@@ -120,15 +119,49 @@ new() {
 	sed -i '/^$/d' $Book
 }
 
+#Function to search any entry in Address Book
+search() {
+	echo "**********Search Person**********"
+	while $True
+	do
+		echo "Enter Any thing to Search"
+		echo "First Name or Last Name or Pin Code or Mobile Number"
+		read find
+		find=`echo $find | sed 's/./\L&/g'`
+		result=`cat $Book | grep $find`
+		if [[ -z "$result" ]]
+		then
+			echo "No record found"
+		else
+			cat $Book | grep -iw $find | awk -F";" '{print "First Name: "$1;print "Last Name: "$2;print "Address: "$3;print "Pin Code: "$4;print "Mobile Number: "$5;print "------------------------------"}'
+		fi
+		echo 
+		echo "Enter 'p' to Print Data or any key to Continue Search"
+		read Print
+		if [[ $Print == 'p' ]]
+		then
+			touch print_out.txt
+			cat $Book | grep -iw $find | awk -F";" '{print "First Name: "$1;print "Last Name: "$2;print "Address: "$3;print "Pin Code: "$4;print "Mobile Number: "$5;print "------------------------------"}' >> print_out.txt
+			break
+		else
+			continue 
+		fi
+	done
+}
+
 echo "Enter your Choice"
 echo "1) Add Person"
+echo "2) Search Person"
 read usr_choice
 
 case $usr_choice in 
 	1)
 		new
 		;;
+	2)
+		search
+		;;
 	*)
-		echo "Please enter number 1"
+		echo "Please enter number from 1 or 2"
 		;;
 esac
