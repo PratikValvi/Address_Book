@@ -12,9 +12,9 @@ else
 fi
 #Function to add new entry in Address Book
 new() {
+	echo "**********Add Person**********"
 	while $True
 	do
-		echo "**********Add Person**********"
 		while $True
 		do
 			read -p "Enter First Name: " usr_first
@@ -98,6 +98,7 @@ new() {
 		sed -i '/^$/d' $Book
 		
 		read -p "Press Any Key to Add more or 'q' to Quit." usr_response
+		echo ""
 		if [[ $usr_response == 'q' ]]
 		then
 			break
@@ -116,7 +117,7 @@ search() {
 		echo "First Name or Last Name or Pin Code or Mobile Number"
 		read find
 		find=`echo $find | sed 's/./\L&/g'`
-		result=`cat $Book | grep $find`
+		result=`cat $Book | grep -iw $find`
 		if [[ -z "$result" ]]
 		then
 			echo "No record found"
@@ -134,7 +135,15 @@ search() {
 			1)
 				touch print_out.txt
 				cat $Book | grep -iw $find | awk -F";" '{print "First Name: "$1;print "Last Name: "$2;print "Address: "$3;print "Pin Code: "$4;print "Mobile Number: "$5;print "------------------------------"}' >> print_out.txt
-				break
+				echo "Data copied to 'print_out.txt' in Current Directory"
+				read -p "Press Any Key to Search more or 'q' to Quit." usr_response
+				echo ""
+				if [[ $usr_response == 'q' ]]
+				then
+					break
+				else
+					continue
+				fi
 				;;
 			2)
 				continue
@@ -160,7 +169,7 @@ update () {
 		echo "First Name or Last Name or Pin Code or Mobile Number"
 		read find
 		find=`echo $find | sed 's/./\L&/g'`
-		result=`cat $Book | grep $find`
+		result=`cat $Book | grep -iw $find`
 		if [[ -z "$result" ]]
 		then
 			echo "No record found"
@@ -332,16 +341,68 @@ update () {
 	done			
 }
 
+delete () {
+	echo "**********Delete Record**********"
+	while $True
+	do
+		echo "Enter Any thing to Search"
+		echo "First Name or Last Name or Pin Code or Mobile Number"
+		read find
+		find=`echo $find | sed 's/./\L&/g'`
+		result=`cat $Book | grep -iw $find`
+		if [[ -z "$result" ]]
+		then
+			echo "No record found"
+			echo ""
+			continue
+		else
+			cat $Book | grep -iw $find | awk -F";" '{print "First Name: "$1;print "Last Name: "$2;print "Address: "$3;print "Pin Code: "$4;print "Mobile Number: "$5;print "------------------------------"}'
+
+			echo "Enter your Choice"
+			echo "1) Delete this record"
+			echo "2) Search Again"
+			echo "3) Quit"
+			read usr_response
+			case $usr_response in 
+				1)
+					entry=`cat $Book | grep -iw $find | awk -F";" '{print $0}'`
+					sed -i "/$entry/d" $Book
+					echo "Record Deleted"
+					;;
+				2)
+					continue
+					;;
+				3)
+					break
+					;;
+				*)
+					echo "Please Enter Number from 1 to 3"
+					;;
+			esac
+		fi
+		read -p "Press Any Key to Delete more or 'q' to Quit." usr_response
+		echo ""
+		if [[ $usr_response == 'q' ]]
+		then
+			echo "Record Deleted successfully"
+			break
+		else
+			continue
+		fi
+	done	
+}
 #Main Program 
 while $True
 do
+	echo ""
+	echo "Welcome!! to Address Book"
 	echo "Enter your Choice"
 	echo "1) Add Person"
 	echo "2) Search Person"
 	echo "3) Update Record"
-	echo "4) Quit"
+	echo "4) Delete Record"
+	echo "5) Quit"
 	read usr_choice
-
 	case $usr_choice in 
 		1)
 			new
@@ -353,11 +414,13 @@ do
 			update
 			;;
 		4)
+			delete
+			;;
+		5)
 			break
 			;;
 		*)
-			echo "Please enter number from 1 to 4"
+			echo "Please Enter Number from 1 to 5"
 			;;
 	esac	
 done
-
